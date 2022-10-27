@@ -47,11 +47,9 @@ LINK="/data/web_static/current"
 SOURCE_DIR="/data/web_static/releases/test/"
 if  [ -L $LINK ];
 then
-	echo "in if"
 	rm $LINK
 	ln -s $SOURCE_DIR $LINK
 else
-	echo "in else"
 	ln -s $SOURCE_DIR $LINK
 fi	
 # Give ownership of the /data/ folder to the ubuntu user AND group (you can assume this user and group exist). This should be recursive; everything inside should be created/owned by this user/group.
