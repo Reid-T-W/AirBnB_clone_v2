@@ -69,8 +69,11 @@ def do_deploy(archive_path):
         # move all contents from web_static to web_static_20221027225456
         run("mv /data/web_static/releases/{}/web_static/* /data/web_static \
             /releases/{}".format(archive_name_only, archive_name_only))
+        # deleting the web_static folder
+        run("rm -rf /data/web_static/releases/{}/web_static".
+            format(archive_name_only))
         # deleting the old symbolic link
-        run("rm /data/web_static/current")
+        run("rm -rf /data/web_static/current")
         # creating a new symbolic link
         run("ln -s /data/web_static/releases/{} /data/web_static/current".
             format(archive_name_only))
