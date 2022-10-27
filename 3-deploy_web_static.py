@@ -95,7 +95,7 @@ def deploy():
     # Creating an archieve
     new_archive = do_pack()
     # Cheking if the archive was created
-    if (path.exists(archive_path) is False):
+    if (path.exists(new_archive) is False):
         return False
     # Deploying the new archive to the remote servers
     return(do_deploy(new_archive))
