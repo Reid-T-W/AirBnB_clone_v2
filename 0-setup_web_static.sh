@@ -56,8 +56,10 @@ fi
 DIR="/data/"
 chown -R ubuntu:ubuntu $DIR
 # Update the Nginx configuration to serve the content of /data/web_static/current/ to hbnb_static
-old_string="try_files \$uri \$uri\/ =404;\n	}"
-final_string="${old_string}\n\n	location \/hbnb_static {\n		alias \/data\/web_static\/current\/;\n	}"
-sed -i "N; s/$old_string/$final_string/g" /etc/nginx/sites-available/default
+# old_string="try_files \$uri \$uri\/ =404;\n	}"
+# final_string="${old_string}\n\n	location \/hbnb_static {\n		alias \/data\/web_static\/current\/;\n	}"
+# sed -i "N; s/$old_string/$final_string/g" /etc/nginx/sites-available/default
+final_string="location \/hbnb_static {\n		alias \/data\/web_static\/current\/;\n	}"
+sed -i "63i\	$final_string" /etc/nginx/sites-available/default
 # Restaring nginx
 service nginx restart
