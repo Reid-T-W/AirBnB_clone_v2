@@ -1,29 +1,37 @@
 #!/usr/bin/python3
-"""Fabric script to generate .tgz archive"""
+# Fabric script that generates a .tgz archive from the
+# contents of the web_static folder of the AirBnB Clone repo
+from fabric.api import *
+import os
+import tarfile
+import datetime
 
-from fabric.api import local
-from datetime import datetime
-
-from fabric.decorators import runs_once
+env.hosts = ['3.238.235.87', '100.26.133.150']
+env.user = 'ubuntu'
 
 
-@runs_once
 def do_pack():
-    """
-        Creates a .tgz archive from all files in web_static folder
-
-        Archive name:
-            web_static_<year><month><day><hour><minute><second>.tgz
-
-        Returns:
-            archive path if successful else None
-    """
-    from datetime import datetime
-
-    name = "./versions/web_static_{}.tgz"
-    name = name.format(datetime.now().strftime("%Y%m%d%H%M%S"))
-    local("mkdir -p versions")
-    create = local("tar -cvzf {} web_static".format(name))
-    if create.succeeded:
+    today = datetime.datetime.now()
+    year = today.year
+    month = today.month
+    day = today.day
+    hour = today.hour
+    minute = today.minute
+    second = today.second
+    # Creating the directory if it does not exist
+    try:
+        os.makedirs("versions")
+    except FileExistsError:
+        pass
+    try:
+        # Creating the .tgz file
+        name = "./versions/web_static_{}{}{}{}{}{}.tgz". \
+               format(year, month, day, hour, minute, second)
+        static_content = "./web_static/"
+        with tarfile.open(name, "w:gz") as trzhandle:
+            for root, dirs, files in os.walk(static_content):
+                for f in files:
+                    trzhandle.add(os.path.join(root, f))
         return name
-    return None
+    except Exception:
+        return None
