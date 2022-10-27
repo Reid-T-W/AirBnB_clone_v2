@@ -11,6 +11,10 @@ env.user = 'ubuntu'
 
 
 def do_pack():
+    """
+    Collects the web_static files into a tar file and
+    zips them
+    """
     today = datetime.datetime.now()
     year = today.year
     month = today.month
