@@ -8,7 +8,7 @@ import datetime
 from os import path
 
 
-env.hosts = ['3.238.235.87', '100.26.133.150']
+env.hosts = ['3.238.235.87']
 
 
 def do_pack():
@@ -67,8 +67,9 @@ def do_deploy(archive_path):
         # delting the .tgz file
         run("rm /tmp/{}".format(archive_name))
         # move all contents from web_static to web_static_20221027225456
-        run("mv /data/web_static/releases/{}/web_static/* /data/web_static \
-            /releases/{}".format(archive_name_only, archive_name_only))
+        run("mv /data/web_static/releases/{}/web_static/* \
+            /data/web_static/releases/{}".
+            format(archive_name_only, archive_name_only))
         # deleting the web_static folder
         run("rm -rf /data/web_static/releases/{}/web_static".
             format(archive_name_only))
