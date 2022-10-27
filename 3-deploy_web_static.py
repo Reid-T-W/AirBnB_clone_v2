@@ -1,79 +1,101 @@
 #!/usr/bin/python3
-"""
-    This module generates a .tgz archive from web_static folder and
-    distributes archive to web servers
-"""
-from fabric.api import local, run, put, env
+# Fabric script that generates a .tgz archive from the
+# contents of the web_static folder of the AirBnB Clone repo
+from fabric.api import *
+import os
+import tarfile
+import datetime
+from os import path
 
 
-env.hosts = ['3.238.197.27', '107.21.43.52']
-env.user = 'ubuntu'
+env.hosts = ['3.238.235.87', '100.26.133.150']
 
 
 def do_pack():
     """
-        Creates a .tgz archive from all files in web_static folder
-
-        Archive name:
-            web_static_<year><month><day><hour><minute><second>.tgz
-
-        Returns:
-            archive path if successful else None
+    Collects the web_static files into a tar file and
+    zips them
     """
-    from datetime import datetime
-
-    name = "./versions/web_static_{}.tgz"
-    name = name.format(datetime.now().strftime("%Y%m%d%H%M%S"))
-    local("mkdir -p versions")
-    create = local("tar -cvzf {} web_static".format(name))
-    if create.succeeded:
+    today = datetime.datetime.now()
+    year = today.year
+    month = today.month
+    day = today.day
+    hour = today.hour
+    minute = today.minute
+    second = today.second
+    # Creating the directory if it does not exist
+    try:
+        os.makedirs("versions")
+    except FileExistsError:
+        pass
+    try:
+        # Creating the .tgz file
+        name = "./versions/web_static_{}{}{}{}{}{}.tgz". \
+               format(year, month, day, hour, minute, second)
+        static_content = "./web_static/"
+        with tarfile.open(name, "w:gz") as trzhandle:
+            for root, dirs, files in os.walk(static_content):
+                for f in files:
+                    trzhandle.add(os.path.join(root, f))
         return name
-    return None
+    except Exception:
+        return None
 
 
 def do_deploy(archive_path):
     """
-        Uploads an archive to web servers
-
-        Returns:
-            True if operations succeed
-            False if archive_path doesn't exist or fail
+    Distributes archive to web servers
+    Attrs
+        archive_path: the path to the archive file
+    Returns
+        True if all operations have been successfully
+        completed else False
     """
-    import os
-
-    if not os.path.exists(archive_path):
+    # Check if archive path exists locally
+    if (path.exists(archive_path) is False):
         return False
-    if not put(archive_path, "/tmp/").succeeded:
+    try:
+        archive_name = os.path.basename(archive_path)
+        archive_name_only = os.path.splitext(archive_name)[0]
+        # placing the archives on the remote servers
+        put(archive_path, "/tmp/{}".format(archive_name))
+        # creating a the folder required for decompression
+        run("mkdir -p /data/web_static/releases/{}/".format(archive_name_only))
+        # extracting and decompressing the .tgz file
+        run("tar -xzf /tmp/{} -C /data/web_static/releases/{}".
+            format(archive_name, archive_name_only))
+        # delting the .tgz file
+        run("rm /tmp/{}".format(archive_name))
+        # move all contents from web_static to web_static_20221027225456
+        run("mv /data/web_static/releases/{}/web_static/* \
+            /data/web_static/releases/{}".
+            format(archive_name_only, archive_name_only))
+        # deleting the web_static folder
+        run("rm -rf /data/web_static/releases/{}/web_static".
+            format(archive_name_only))
+        # deleting the old symbolic link
+        run("rm -rf /data/web_static/current")
+        # creating a new symbolic link
+        run("ln -s /data/web_static/releases/{} /data/web_static/current".
+            format(archive_name_only))
+        return True
+    except Exception:
         return False
-    filename = archive_path[9:]
-    foldername = "/data/web_static/releases/" + filename[:-4]
-    filename = "/tmp/" + filename
-    if not run('mkdir -p {}'.format(foldername)).succeeded:
-        return False
-    if not run('tar -xzf {} -C {}'.format(filename, foldername)).succeeded:
-        return False
-    if not run('rm {}'.format(filename)).succeeded:
-        return False
-    if not run('mv {}/web_static/* {}'.format(foldername,
-                                              foldername)).succeeded:
-        return False
-    if not run('rm -rf {}/web_static'.format(foldername)).succeeded:
-        return False
-    if not run('rm -rf /data/web_static/current').succeeded:
-        return False
-    return run('ln -s {} /data/web_static/current'.format(
-        foldername)).succeeded
 
 
 def deploy():
     """
-        Packs and deploys an archive to servers
+    Creates archive and distributes to the
+    remote servers
+    Returns
+        False if archieve has not been created
+        successfully else it returns the return
+        value of do_deploy
     """
-    path = do_pack()
-    if path is False:
+    # Creating an archieve
+    new_archive = do_pack()
+    # Cheking if the archive was created
+    if (path.exists(archive_path) is False):
         return False
-    return do_deploy(path)
-
-
-if __name__ == "__main__":
-    deploy()
+    # Deploying the new archive to the remote servers
+    return(do_deploy(new_archive))
