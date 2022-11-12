@@ -8,12 +8,13 @@ class State(BaseModel, Base):
     """ State class """
     __tablename__ = 'states'
     name = Column(String(128), nullable=False)
-   
+
     @property
     def cities(self):
+        """returns the corresponding cities of a state"""
         from models import storage
         from models.city import City
-        filtered_objs=[]
+        filtered_objs = []
         objs = storage.all(City)
         for key, value in objs.items():
             if value.state_id == self.id:
