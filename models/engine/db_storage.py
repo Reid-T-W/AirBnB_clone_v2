@@ -11,6 +11,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+import copy
 
 
 class DBStorage():
@@ -33,6 +34,7 @@ class DBStorage():
 
     def all(self, cls=None):
         """Returns all elements or elements filtered by class in DBStorage"""
+        # If cls is passed as a string
         classes = {
             'State': State,
             'City': City,
@@ -41,21 +43,12 @@ class DBStorage():
             'Review': Review,
             'Amenity': Amenity
         }
-        obj = {}
-        if cls in classes:
-            cls_objects = self.__session.query(classes[cls]).all()
-            for co in cls_objects:
-                if '_sa_instance_state' in co.__dict__:
-                    co.__dict__.pop("_sa_instance_state")
-                dicti = co.to_dict()
-                clss = dicti['__class__']
-                key = f"{clss}.{co.id}"
-                obj[key] = co
-            return obj
-        elif cls is None:
+        obj = {} 
+        if cls is None:
             for key, val in classes.items():
                 cls_objects = self.__session.query(val).all()
-                for co in cls_objects:
+                copy_cls_objects = copy.deepcopy(cls_objects)
+                for co in copy_cls_objects:
                     if '_sa_instance_state' in co.__dict__:
                         co.__dict__.pop("_sa_instance_state")
                     dicti = co.to_dict()
@@ -63,8 +56,21 @@ class DBStorage():
                     key = f"[{clss}] ({co.id})"
                     obj[key] = co
             return obj
-        else:
-            print("Didn't run")
+        # If cls is passed as a string 
+        elif isinstance(cls, str) and cls in classes:
+            cls_objects = self.__session.query(classes[cls]).all()
+        # If cls is passed as an object
+        elif not isinstance(cls, str) and cls.__name__ in classes:
+            cls_objects = self.__session.query(classes[cls.__name__]).all()
+        copy_cls_objects = copy.deepcopy(cls_objects)
+        for co in copy_cls_objects:
+            if '_sa_instance_state' in co.__dict__:
+                co.__dict__.pop("_sa_instance_state")
+            dicti = co.to_dict()
+            clss = dicti['__class__']
+            key = f"{clss}.{co.id}"
+            obj[key] = co
+        return obj
 
     def new(self, obj):
         """Adds an object to the session"""
@@ -82,8 +88,12 @@ class DBStorage():
 
     def reload(self):
         """Creates a new session and schema"""
-        session_factory = sessionmaker(bind=self.__engine,
+        self.session_factory = sessionmaker(bind=self.__engine,
                                        expire_on_commit=False, )
-        Session = scoped_session(session_factory)
-        self.__session = Session()
+        self.Session = scoped_session(self.session_factory)
+        self.__session = self.Session()
         Base.metadata.create_all(self.__engine)
+
+    def close(self):
+        """Closes a session"""
+        self.Session.remove();

@@ -77,3 +77,7 @@ class FileStorage:
                 if val is obj:
                     FileStorage.__objects.pop(key)
             self.save()
+
+    def close(self):
+        """calls the reload function"""
+        reload();
