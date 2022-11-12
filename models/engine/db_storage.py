@@ -43,7 +43,7 @@ class DBStorage():
             'Review': Review,
             'Amenity': Amenity
         }
-        obj = {} 
+        obj = {}
         if cls is None:
             for key, val in classes.items():
                 cls_objects = self.__session.query(val).all()
@@ -56,7 +56,7 @@ class DBStorage():
                     key = f"[{clss}] ({co.id})"
                     obj[key] = co
             return obj
-        # If cls is passed as a string 
+        # If cls is passed as a string
         elif isinstance(cls, str) and cls in classes:
             cls_objects = self.__session.query(classes[cls]).all()
         # If cls is passed as an object
@@ -89,11 +89,11 @@ class DBStorage():
     def reload(self):
         """Creates a new session and schema"""
         self.session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False, )
+                                            expire_on_commit=False, )
         self.Session = scoped_session(self.session_factory)
         self.__session = self.Session()
         Base.metadata.create_all(self.__engine)
 
     def close(self):
         """Closes a session"""
-        self.Session.remove();
+        self.Session.remove()
