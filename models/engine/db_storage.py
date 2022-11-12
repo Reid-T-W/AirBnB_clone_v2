@@ -82,7 +82,7 @@ class DBStorage():
         self.__session.commit()
 
     def delete(self, obj=None):
-        """Delets an object"""
+        """Deletes an object"""
         if obj is not None:
             self.__session.delete(obj)
 
@@ -95,5 +95,5 @@ class DBStorage():
         Base.metadata.create_all(self.__engine)
 
     def close(self):
-        """Closes a session"""
+        """Closes a session by removing self.Session"""
         self.Session.remove()
