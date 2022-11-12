@@ -5,7 +5,7 @@ from sqlalchemy import String, Column, ForeignKey
 from os import getenv
 
 
-class State(BaseModel, Base):
+class State(BaseModel):
     """ State class """
     __tablename__ = 'states'
     name = Column(String(128), nullable=False)
