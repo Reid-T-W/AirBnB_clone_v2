@@ -28,6 +28,8 @@ class DBStorage():
         self.url = f"mysql+mysqldb://{self.user}:"\
             f"{self.passwd}@{self.host}/{self.db}"
         self.__engine = create_engine(self.url, pool_pre_ping=True)
+        self.session_factory = sessionmaker(bind=self.__engine,
+                                            expire_on_commit=False, )
         if getenv("HBNB_ENV", default=None) == "test":
             # Drop all tables
             Base.metadata.drop_all(bind=DBStorage.__engine)
@@ -88,8 +90,6 @@ class DBStorage():
 
     def reload(self):
         """Creates a new session and schema"""
-        self.session_factory = sessionmaker(bind=self.__engine,
-                                            expire_on_commit=False, )
         self.Session = scoped_session(self.session_factory)
         self.__session = self.Session()
         Base.metadata.create_all(self.__engine)
