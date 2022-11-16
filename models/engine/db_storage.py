@@ -87,12 +87,12 @@ class DBStorage():
             self.__session.delete(obj)
 
     def reload(self):
-        """Creates a new session and schema"""
+        """Creates a new session and schema""" 
+        Base.metadata.create_all(self.__engine)
         self.session_factory = sessionmaker(bind=self.__engine,
                                             expire_on_commit=False, )
         self.Session = scoped_session(self.session_factory)
         self.__session = self.Session()
-        Base.metadata.create_all(self.__engine)
 
     def close(self):
         """Closes a session by removing self.Session"""
