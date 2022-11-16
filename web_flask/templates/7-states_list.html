@@ -6,9 +6,9 @@
 	<BODY>
 		<H1>{{ states }}</H1>
 		<UL>
-		{% for item in filtered_objs|sort(attribute='name') %}
+			{% for item in filtered_objs|sort(attribute='name') %}
 			<LI>{{item.id}}: <B>{{item.name}}</B></LI>
-		{% endfor %}
+			{% endfor %}
 		</UL>
 	</BODY>
 </HTML>
