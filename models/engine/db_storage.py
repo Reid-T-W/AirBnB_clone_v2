@@ -26,7 +26,7 @@ class DBStorage():
         self.db = getenv("HBNB_MYSQL_DB", default=None)
         self.host = getenv("HBNB_MYSQL_HOST", default=None)
         self.url = f"mysql+mysqldb://{self.user}:"\
-                   f"{self.passwd}@{self.host}/{self.db}"
+            f"{self.passwd}@{self.host}/{self.db}"
         self.__engine = create_engine(self.url, pool_pre_ping=True)
         if getenv("HBNB_ENV", default=None) == "test":
             # Drop all tables
