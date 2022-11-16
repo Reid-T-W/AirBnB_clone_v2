@@ -90,17 +90,11 @@ class DBStorage():
         """Creates a new session and schema"""
         self.session_factory = sessionmaker(bind=self.__engine,
                                             expire_on_commit=False, )
-        self.__session = scoped_session(self.session_factory)
+        self.Session = scoped_session(self.session_factory)
+        self.__session = self.Session()
         Base.metadata.create_all(self.__engine)
-        # self.Session = scoped_session(self.session_factory)
-        # self.__session = self.Session()
-        # Base.metadata.create_all(self.__engine)
 
     def close(self):
         """Closes a session by removing self.Session"""
-        self.__session.remove()
-        # self.__session = scoped_session(self.session_factory)
-        # self.Session.remove()
-        # self.Session = scoped_session(self.session_factory)
-        # self.__session = self.Session(self.__engine)
-        # Base.metadata.create_all(self.__engine)
+        self.Session.remove()
+        self.__session = self.Session()
