@@ -74,13 +74,13 @@ def number_odd_or_even_dynamic(n):
 @app.route('/states_list')
 def states_list():
     states = "States"
-    states_list = storage.all()
+    states_list = storage.all('State')
     filtered_objs = []
-    
+
     for key, value in states_list.items():
         filtered_objs.append(value)
-    return render_template('7-states_list.html', states = states, filtered_objs = filtered_objs)
-    
+    return render_template('7-states_list.html', states=states,
+                           filtered_objs=filtered_objs)
 
 
 @app.teardown_appcontext
