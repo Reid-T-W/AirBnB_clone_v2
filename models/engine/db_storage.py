@@ -26,7 +26,7 @@ class DBStorage():
         self.db = getenv("HBNB_MYSQL_DB", default=None)
         self.host = getenv("HBNB_MYSQL_HOST", default=None)
         self.url = f"mysql+mysqldb://{self.user}:"\
-                   f"{self.passwd}@{self.host}/{self.db}"
+            f"{self.passwd}@{self.host}/{self.db}"
         self.__engine = create_engine(self.url, pool_pre_ping=True)
         if getenv("HBNB_ENV", default=None) == "test":
             # Drop all tables
@@ -82,18 +82,18 @@ class DBStorage():
         self.__session.commit()
 
     def delete(self, obj=None):
-        """Delets an object"""
+        """Deletes an object"""
         if obj is not None:
             self.__session.delete(obj)
 
     def reload(self):
         """Creates a new session and schema"""
-        self.session_factory = sessionmaker(bind=self.__engine,
-                                            expire_on_commit=False, )
-        self.Session = scoped_session(self.session_factory)
-        self.__session = self.Session()
         Base.metadata.create_all(self.__engine)
+        session_factory = sessionmaker(bind=self.__engine,
+                                       expire_on_commit=False, )
+        Session = scoped_session(session_factory)
+        self.__session = Session()
 
     def close(self):
-        """Closes a session"""
-        self.Session.remove()
+        """Closes a session by removing self.Session"""
+        self.__session.close()

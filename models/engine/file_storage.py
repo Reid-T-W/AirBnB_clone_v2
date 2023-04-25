@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
 
@@ -80,4 +81,4 @@ class FileStorage:
 
     def close(self):
         """calls the reload function"""
-        reload()
+        self.reload()
